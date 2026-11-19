@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Register · Beyond the Horizon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500&family=Prompt:wght@300;400;500;600&display=swap">
+<style>
+:root{
+  --red:#c60013; --black:#000; --ink:#fff; --soft:rgba(255,255,255,.68); --faint:rgba(255,255,255,.16); --err:#ff9aa2;
+  --serif:'DM Serif Display','Prompt',serif; --sans:'Inter','Prompt',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;color-scheme:dark}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--black);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.7}
+
+/* ---------- Hero: sky goes black -> red, sun rises on the horizon ---------- */
+.hero{position:relative;min-height:640px;overflow:hidden;
+  background:linear-gradient(180deg,#000 0%,#2a0005 40%,#8f000e 75%,var(--red) 100%)}
+.sun{position:absolute;left:62%;bottom:-210px;width:min(520px,80vw);aspect-ratio:1;border-radius:50%;transform:translateX(-50%);
+  background:radial-gradient(circle at 50% 40%,#fff1ea 0%,#ff7a68 38%,#e51a2b 68%,var(--red) 100%);
+  box-shadow:0 0 90px 30px rgba(255,70,80,.45)}
+.hero-inner{position:relative;max-width:980px;margin:0 auto;padding:70px 6% 150px}
+.top{display:flex;justify-content:flex-end;margin-bottom:64px;font-size:.85rem}
+.top a{color:var(--ink);text-decoration:none;opacity:.85}.top a:hover{opacity:1;text-decoration:underline}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(3.2rem,11vw,6.6rem);line-height:.98;margin:0 0 18px;max-width:8em}
+.hero .sub-title{font-size:1.05rem;font-weight:500;margin:0 0 4px}
+.hero .tagline{font-family:var(--serif);font-style:italic;font-size:1.2rem;margin:0 0 8px;color:#ffd5d9}
+.hero .info{margin:0 0 30px;font-size:.92rem;color:var(--soft)}
+
+/* ---------- Buttons ---------- */
+.btn{font:inherit;font-size:.95rem;font-weight:500;border-radius:99px;padding:12px 28px;cursor:pointer;border:0;
+  background:var(--red);color:#fff;text-decoration:none;display:inline-block;transition:background .2s,transform .1s}
+.btn:hover{background:#e0001a}.btn:active{transform:translateY(1px)}
+.btn.light{background:#fff;color:#000}.btn.light:hover{background:#ffe9ea}
+.btn.ghost{background:transparent;color:var(--soft);padding-left:0;padding-right:8px;text-decoration:underline;text-underline-offset:4px}
+.btn.ghost:hover{color:#fff;background:transparent}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn:focus-visible,.choice:focus-visible,.chip:has(input:focus-visible),a:focus-visible{outline:2px solid #fff;outline-offset:3px}
+
+/* ---------- Form ---------- */
+.section{max-width:640px;margin:0 auto;padding:80px 6% 100px}
+.section h2.title{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,6vw,2.8rem);line-height:1.15;margin:0 0 8px}
+.lead{margin:0 0 36px;color:var(--soft)}
+
+.steps{display:flex;gap:8px;margin:0 0 40px;padding:0;list-style:none;font-size:.8rem;color:var(--soft)}
+.steps li{flex:1;border-top:3px solid var(--faint);padding-top:8px}
+.steps li.on{border-color:#fff;color:#fff}
+.steps li.done{border-color:var(--red);color:#fff}
+
+.card{padding:0}
+h2{font-family:var(--serif);font-weight:400;font-size:1.7rem;line-height:1.2;margin:0 0 6px}
+.sub{margin:0 0 20px;color:var(--soft)}
+label{display:block;font-weight:400;font-size:.88rem;margin:24px 0 2px;color:var(--soft)}
+.req::after{content:" *";color:#ff6b78}
+input,select,textarea{width:100%;font:inherit;font-size:1.05rem;font-weight:400;color:#fff;background:transparent;
+  border:0;border-bottom:1.5px solid var(--faint);border-radius:0;padding:10px 0;transition:border-color .2s}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.35)}
+input:focus,select:focus,textarea:focus{outline:none;border-bottom-color:#fff}
+select option{background:#111;color:#fff}
+textarea{min-height:76px;resize:vertical;margin-top:14px}
+input[type=file]{font-size:.9rem;padding:14px 0}
+input[type=file]::file-selector-button{font:inherit;margin-right:14px;border:0;background:var(--faint);color:#fff;border-radius:99px;padding:7px 18px;cursor:pointer}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:520px){.row{grid-template-columns:1fr;gap:0}.hero-inner{padding-top:40px}.top{margin-bottom:40px}}
+
+.choice{display:block;width:calc(100% + 32px);margin:0 -16px;text-align:left;font:inherit;color:#fff;background:transparent;
+  border:0;border-bottom:1px solid var(--faint);padding:20px 16px;cursor:pointer;transition:background .2s}
+.choice:hover{background:rgba(255,255,255,.06)}
+.choice b{display:block;font-weight:500;font-size:1.05rem}
+.choice span{color:var(--soft);font-size:.9rem}
+.choice.sel{background:var(--red)}
+.choice.sel span{color:#ffe0e3}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{margin:0;border-radius:99px;padding:6px 16px;cursor:pointer;font-size:.9rem;color:#fff;background:var(--faint);user-select:none;transition:background .2s}
+.chip input{display:none}
+.chip:hover{background:rgba(255,255,255,.26)}
+.chip:has(input:checked){background:#fff;color:#000}
+
+.actions{display:flex;align-items:center;gap:16px;margin-top:36px}
+.actions .btn:not(.ghost){flex:1}
+.err{color:var(--err);font-size:.86rem;margin-top:8px;min-height:1em}
+.hint{font-size:.82rem;color:var(--soft);margin:8px 0 0}
+.banner{background:rgba(255,100,110,.14);color:var(--err);padding:12px 14px;margin-top:18px;display:none;font-size:.92rem}
+
+.amount{font-family:var(--serif);font-size:2.8rem;line-height:1.1;margin:10px 0 0}
+.qr{display:grid;place-items:center;width:230px;max-width:100%;aspect-ratio:1;margin:18px 0 10px;background:var(--faint);color:var(--soft);text-align:center;padding:12px;font-size:.9rem}
+.qr img{width:100%;height:100%;object-fit:contain;background:#fff;padding:8px}
+.acct{color:var(--soft);font-size:.9rem}
+.preview{margin-top:12px;max-height:220px;display:none}
+.center{text-align:left}
+.done-mark{width:60px;height:60px;border-radius:50%;background:var(--red);display:grid;place-items:center;font-size:1.6rem;margin:0 0 18px}
+.ref{display:inline-block;margin-top:8px;padding:6px 16px;background:var(--red);font-family:var(--serif);font-size:1.3rem;letter-spacing:.06em}
+footer{padding:30px 6%;color:var(--soft);font-size:.85rem;text-align:center;font-family:var(--serif);font-style:italic}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="sun" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="top"><a href="#form">Register</a></div>
+    <h1 id="eventName"></h1>
+    <p class="sub-title" id="eventSub"></p>
+    <p class="tagline" id="tagline"></p>
+    <p class="info" id="eventInfo"></p>
+    <a class="btn light" href="#form">Save my seat</a>
+  </div>
+</header>
+
+  <main class="section" id="form">
+    <h2 class="title">Save your seat.</h2>
+    <p class="lead">It takes about two minutes. Keep your payment slip handy for the last step.</p>
+
+    <ol class="steps" id="steps" aria-label="Registration steps">
+      <li>Who</li><li>You</li><li>Pay</li><li>Done</li>
+    </ol>
+
+    <!-- Step 1 -->
+    <section class="card" id="s1">
+      <h2>Who's joining us?</h2>
+      <p class="sub">Pick one, and tell us where to send your confirmation.</p>
+      <label for="email" class="req">Your email</label>
+      <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com">
+      <div class="err" id="e-email"></div>
+
+      <button class="choice" type="button" data-type="student">
+        <b>PPE student (Thai / International) · CIS TU</b><span>I'm in the PPE programme</span>
+      </button>
+      <button class="choice" type="button" data-type="guest">
+        <b>General guest</b><span>I'm joining as a friend, family or guest</span>
+      </button>
+      <div class="err" id="e-type"></div>
+      <div class="actions"><button class="btn" id="next1" type="button">Next</button></div>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="card" id="s2" hidden>
+      <h2 id="s2title"></h2>
+      <p class="sub">Just the basics. Fields marked * are required.</p>
+      <div class="row">
+        <div><label for="firstName" class="req">First name</label><input id="firstName" autocomplete="given-name"></div>
+        <div><label for="lastName" class="req">Last name</label><input id="lastName" autocomplete="family-name"></div>
+      </div>
+      <label for="nickname" class="req">Nickname</label>
+      <input id="nickname">
+      <p class="hint" id="nameHint"></p>
+
+      <div id="studentOnly">
+        <label for="program" class="req">Programme</label>
+        <select id="program"><option value="">Select</option><option value="thai">Thai programme (Thai students)</option><option value="inter">International programme (international students)</option></select>
+        <div class="row">
+          <div><label for="studentId" class="req">Student ID</label><input id="studentId" inputmode="numeric" maxlength="10"></div>
+          <div><label for="year" class="req">Year</label>
+            <select id="year"><option value="">Select</option><option>1</option><option>2</option><option>3</option><option>4</option><option>More than 4</option></select>
+          </div>
+        </div>
+      </div>
+      <div id="guestOnly" hidden>
+        <label for="phone" class="req">Phone number</label>
+        <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="08x-xxx-xxxx">
+      </div>
+
+      <label>Food allergies / dietary requirements</label>
+      <div class="chips" id="dietChips">
+        <label class="chip"><input type="checkbox" value="Vegan">Vegan</label>
+        <label class="chip"><input type="checkbox" value="Vegetarian">Vegetarian</label>
+        <label class="chip"><input type="checkbox" value="Halal">Halal / Muslim</label>
+        <label class="chip"><input type="checkbox" value="Nut allergy">Nut allergy</label>
+        <label class="chip"><input type="checkbox" value="Seafood allergy">Seafood allergy</label>
+      </div>
+      <textarea id="dietNote" placeholder="Anything else we should know? e.g. dairy allergy, no beef" style="margin-top:12px"></textarea>
+
+      <div class="err" id="e-form"></div>
+      <div class="actions">
+        <button class="btn ghost" type="button" data-back="s1">Back</button>
+        <button class="btn" id="next2" type="button">Continue</button>
+      </div>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="card" id="s3" hidden>
+      <h2>Last step: payment</h2>
+      <p class="sub" id="payFor"></p>
+      <div class="amount" id="amount"></div>
+      <div class="qr" id="qr"></div>
+      <div class="acct" id="acct"></div>
+
+      <label for="slip" class="req">Upload payment slip</label>
+      <input id="slip" type="file" accept="image/*">
+      <img id="preview" class="preview" alt="Payment slip preview">
+      <div class="err" id="e-slip"></div>
+      <div class="banner" id="banner"></div>
+      <div class="actions">
+        <button class="btn ghost" type="button" data-back="s2">Back</button>
+        <button class="btn" id="submit" type="button">Send my registration</button>
+      </div>
+    </section>
+
+    <!-- Step 4 -->
+    <section class="card center" id="s4" hidden>
+      <div class="done-mark" aria-hidden="true">✓</div>
+      <h2>You're in. See you at the horizon.</h2>
+      <p class="sub">We've sent a summary to <b id="doneEmail"></b>. Can't see it? Check your spam folder.</p>
+      <div>Registration ID<br><span class="ref" id="refId"></span></div>
+    </section>
+  </main>
+
+<footer>One Journey Ends, Another Begins.</footer>
+
+<script>
+/* ============ EDIT HERE ============ */
+const CONFIG = {
+  EVENT_NAME: 'BEYOND THE HORIZON',
+  EVENT_SUB: 'PPE TU Class of 2026',
+  TAGLINE: 'One Journey Ends, Another Begins.',
+  EVENT_INFO: 'Date ... · Time ... · Venue ...',
+  SCRIPT_URL: 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE',
+  PRICE: { student: 300, guest: 500 },              // ticket price (THB)
+  QR_IMAGE: '',                                     // e.g. 'qr.png' (add later)
+  ACCOUNT_TEXT: 'Bank ... / Account name ... / Account no. ...'  // edit later
+};
+/* ===================================== */
+
+const $ = id => document.getElementById(id);
+const state = { type: '', email: '', slip: null };
+const sections = ['s1','s2','s3','s4'];
+
+$('eventName').textContent = CONFIG.EVENT_NAME;
+$('eventInfo').textContent = CONFIG.EVENT_INFO;
+$('eventSub').textContent = CONFIG.EVENT_SUB;
+$('tagline').textContent = CONFIG.TAGLINE;
+document.title = 'Register · ' + CONFIG.EVENT_NAME;
+
+function show(id){
+  sections.forEach(s => $(s).hidden = s !== id);
+  const idx = sections.indexOf(id);
+  [...$('steps').children].forEach((li,i) => li.className = i < idx ? 'done' : i === idx ? 'on' : '');
+  if(document.readyState==='complete') $('form').scrollIntoView({behavior:'smooth',block:'start'});
+}
+show('s1');
+
+document.querySelectorAll('[data-back]').forEach(b => b.onclick = () => show(b.dataset.back));
+document.querySelectorAll('.choice').forEach(c => c.onclick = () => {
+  state.type = c.dataset.type;
+  document.querySelectorAll('.choice').forEach(x => x.classList.toggle('sel', x === c));
+  $('e-type').textContent = '';
+});
+
+const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+$('next1').onclick = () => {
+  const email = $('email').value.trim();
+  $('e-email').textContent = emailOk(email) ? '' : 'Please enter a valid email address.';
+  $('e-type').textContent = state.type ? '' : 'Please select your attendee type.';
+  if(!emailOk(email) || !state.type) return;
+  state.email = email;
+  const stu = state.type === 'student';
+  $('s2title').textContent = stu ? 'Tell us about you' : 'Tell us about you';
+  $('studentOnly').hidden = !stu;
+  $('guestOnly').hidden = stu;
+  updateHint();
+  show('s2');
+};
+
+function collect(){
+  const stu = state.type === 'student';
+  const diet = [...document.querySelectorAll('#dietChips input:checked')].map(i => i.value);
+  const note = $('dietNote').value.trim();
+  return {
+    type: state.type, email: state.email,
+    firstName: $('firstName').value.trim(), lastName: $('lastName').value.trim(),
+    nickname: $('nickname').value.trim(),
+    studentId: stu ? $('studentId').value.trim() : '',
+    program: stu ? $('program').value : '',
+    year: stu ? $('year').value : '',
+    phone: stu ? '' : $('phone').value.trim(),
+    diet: [...diet, note].filter(Boolean).join(', ') || 'None'
+  };
+}
+
+const THAI_RE = /^[\u0E00-\u0E7F\s.\-]+$/, EN_RE = /^[A-Za-z\s.\-']+$/;
+
+function updateHint(){
+  const p = state.type === 'student' ? $('program').value : '';
+  $('nameHint').textContent =
+    p === 'thai' ? 'Thai students: please write your name in Thai only.' :
+    p === 'inter' ? 'International students: please write your name in English only.' :
+    state.type === 'student' ? 'Select your programme to see which language to use for your name.' :
+    'Please write your name in Thai or English.';
+}
+$('program').onchange = updateHint;
+
+$('next2').onclick = () => {
+  const d = collect(); let msg = '';
+  const names = [d.firstName, d.lastName, d.nickname];
+  if(!d.firstName || !d.lastName || !d.nickname) msg = 'Please fill in your first name, last name and nickname.';
+  else if(d.type === 'student' && !d.program) msg = 'Please select your programme.';
+  else if(d.program === 'thai' && !names.every(n => THAI_RE.test(n))) msg = 'Thai students: first name, last name and nickname must be in Thai only.';
+  else if(d.program === 'inter' && !names.every(n => EN_RE.test(n))) msg = 'International students: first name, last name and nickname must be in English only.';
+  else if(d.type === 'guest' && !names.every(n => THAI_RE.test(n) || EN_RE.test(n))) msg = 'Please write each name in Thai or in English (not mixed).';
+  else if(d.type === 'student' && !/^\d{8,10}$/.test(d.studentId)) msg = 'Student ID must be 8–10 digits.';
+  else if(d.type === 'student' && !d.year) msg = 'Please select your year.';
+  else if(d.type === 'guest' && !/^[0-9+\-\s]{9,15}$/.test(d.phone)) msg = 'Please enter a valid phone number.';
+  $('e-form').textContent = msg;
+  if(msg) return;
+  const price = CONFIG.PRICE[d.type];
+  $('payFor').textContent = (d.type === 'student' ? 'PPE student' : 'General guest') + ' · ' + d.firstName + ' ' + d.lastName;
+  $('amount').textContent = 'THB ' + price.toLocaleString('en-US');
+  $('qr').innerHTML = CONFIG.QR_IMAGE ? '<img alt="Payment QR code" src="'+CONFIG.QR_IMAGE+'">' : 'Payment QR code<br>(coming soon)';
+  $('acct').textContent = CONFIG.ACCOUNT_TEXT;
+  show('s3');
+};
+
+/* shrink slip image before upload */
+function shrink(file){
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const max = 1400, k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      const dataUrl = c.toDataURL('image/jpeg', .82);
+      res({ name: file.name.replace(/\.[^.]+$/, '') + '.jpg', mime: 'image/jpeg', data: dataUrl.split(',')[1], preview: dataUrl });
+    };
+    img.onerror = () => rej(new Error('Could not read the image file.'));
+    img.src = url;
+  });
+}
+
+$('slip').onchange = async e => {
+  const f = e.target.files[0]; state.slip = null; $('preview').style.display = 'none'; $('e-slip').textContent = '';
+  if(!f) return;
+  if(!f.type.startsWith('image/')) { $('e-slip').textContent = 'Please choose an image file (JPG/PNG).'; return; }
+  if(f.size > 15 * 1024 * 1024) { $('e-slip').textContent = 'File is larger than 15 MB.'; return; }
+  try { state.slip = await shrink(f); $('preview').src = state.slip.preview; $('preview').style.display = 'block'; }
+  catch(err){ $('e-slip').textContent = err.message; }
+};
+
+$('submit').onclick = async () => {
+  $('banner').style.display = 'none';
+  if(!state.slip){ $('e-slip').textContent = 'Please upload your payment slip.'; return; }
+  const btn = $('submit'); btn.disabled = true; btn.textContent = 'Sending...';
+  const d = collect();
+  d.amount = CONFIG.PRICE[d.type];
+  d.slip = { name: state.slip.name, mime: state.slip.mime, data: state.slip.data };
+  try{
+    const r = await fetch(CONFIG.SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(d) });
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || 'Submission failed.');
+    $('doneEmail').textContent = d.email; $('refId').textContent = j.ref;
+    show('s4');
+  }catch(err){
+    $('banner').textContent = err.message + ' — Please try again. If it keeps failing, contact the organisers.';
+    $('banner').style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Send my registration';
+  }
+};
+</script>
+</body>
+</html>
