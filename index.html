@@ -143,14 +143,6 @@ footer{padding:30px 6%;color:var(--soft);font-size:.85rem;text-align:center;font
     <section class="card" id="s2" hidden>
       <h2 id="s2title"></h2>
       <p class="sub">Just the basics. Fields marked * are required.</p>
-      <div class="row">
-        <div><label for="firstName" class="req">First name</label><input id="firstName" autocomplete="given-name"></div>
-        <div><label for="lastName" class="req">Last name</label><input id="lastName" autocomplete="family-name"></div>
-      </div>
-      <label for="nickname" class="req">Nickname</label>
-      <input id="nickname">
-      <p class="hint" id="nameHint"></p>
-
       <div id="studentOnly">
         <label for="program" class="req">Programme</label>
         <select id="program"><option value="">Select</option><option value="thai">Thai programme (Thai students)</option><option value="inter">International programme (international students)</option></select>
@@ -161,6 +153,14 @@ footer{padding:30px 6%;color:var(--soft);font-size:.85rem;text-align:center;font
           </div>
         </div>
       </div>
+      <p class="hint" id="nameHint" style="margin-top:26px"></p>
+      <div class="row">
+        <div><label for="firstName" class="req">First name</label><input id="firstName" autocomplete="given-name"></div>
+        <div><label for="lastName" class="req">Last name</label><input id="lastName" autocomplete="family-name"></div>
+      </div>
+      <label for="nickname" class="req">Nickname</label>
+      <input id="nickname">
+
       <div id="guestOnly" hidden>
         <label for="phone" class="req">Phone number</label>
         <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="08x-xxx-xxxx">
@@ -195,6 +195,10 @@ footer{padding:30px 6%;color:var(--soft);font-size:.85rem;text-align:center;font
       <input id="slip" type="file" accept="image/*">
       <img id="preview" class="preview" alt="Payment slip preview">
       <div class="err" id="e-slip"></div>
+
+      <label for="message">A message to your friends</label>
+      <p class="hint" style="margin:2px 0 0">Optional. Say something to the people you're graduating with.</p>
+      <textarea id="message" maxlength="500" placeholder="Dear friends, ..."></textarea>
       <div class="banner" id="banner"></div>
       <div class="actions">
         <button class="btn ghost" type="button" data-back="s2">Back</button>
@@ -220,7 +224,7 @@ const CONFIG = {
   EVENT_SUB: 'PPE TU Class of 2026',
   TAGLINE: 'One Journey Ends, Another Begins.',
   EVENT_INFO: 'Date ... · Time ... · Venue ...',
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyYMjuQf_tZktzbuNfeuWHK4gM7KN9mkW_HfOds520Oj6q-ST6DTGM-xl2oYc8MfuHWgQ/exec',
+  SCRIPT_URL: 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE',
   PRICE: { student: 300, guest: 500 },              // ticket price (THB)
   QR_IMAGE: '',                                     // e.g. 'qr.png' (add later)
   ACCOUNT_TEXT: 'Bank ... / Account name ... / Account no. ...'  // edit later
@@ -280,6 +284,7 @@ function collect(){
     program: stu ? $('program').value : '',
     year: stu ? $('year').value : '',
     phone: stu ? '' : $('phone').value.trim(),
+    message: $('message').value.trim(),
     diet: [...diet, note].filter(Boolean).join(', ') || 'None'
   };
 }
@@ -299,13 +304,13 @@ $('program').onchange = updateHint;
 $('next2').onclick = () => {
   const d = collect(); let msg = '';
   const names = [d.firstName, d.lastName, d.nickname];
-  if(!d.firstName || !d.lastName || !d.nickname) msg = 'Please fill in your first name, last name and nickname.';
-  else if(d.type === 'student' && !d.program) msg = 'Please select your programme.';
+  if(d.type === 'student' && !d.program) msg = 'Please select your programme.';
+  else if(d.type === 'student' && !/^\d{8,10}$/.test(d.studentId)) msg = 'Student ID must be 8–10 digits.';
+  else if(d.type === 'student' && !d.year) msg = 'Please select your year.';
+  else if(!d.firstName || !d.lastName || !d.nickname) msg = 'Please fill in your first name, last name and nickname.';
   else if(d.program === 'thai' && !names.every(n => THAI_RE.test(n))) msg = 'Thai students: first name, last name and nickname must be in Thai only.';
   else if(d.program === 'inter' && !names.every(n => EN_RE.test(n))) msg = 'International students: first name, last name and nickname must be in English only.';
   else if(d.type === 'guest' && !names.every(n => THAI_RE.test(n) || EN_RE.test(n))) msg = 'Please write each name in Thai or in English (not mixed).';
-  else if(d.type === 'student' && !/^\d{8,10}$/.test(d.studentId)) msg = 'Student ID must be 8–10 digits.';
-  else if(d.type === 'student' && !d.year) msg = 'Please select your year.';
   else if(d.type === 'guest' && !/^[0-9+\-\s]{9,15}$/.test(d.phone)) msg = 'Please enter a valid phone number.';
   $('e-form').textContent = msg;
   if(msg) return;
