@@ -146,7 +146,11 @@ footer{padding:30px 6%;color:var(--soft);font-size:.85rem;text-align:center;font
       <p class="sub">Just the basics. Fields marked * are required.</p>
       <div id="studentOnly">
         <label for="program" class="req">Programme</label>
-        <select id="program"><option value="">Select</option><option value="thai">Thai programme (Thai students)</option><option value="inter">International programme (international students)</option></select>
+        <select id="program"><option value="">Select</option><option value="thai">Thai programme</option><option value="inter">International programme</option></select>
+        <div id="originWrap" hidden>
+          <label for="origin" class="req">I am a</label>
+          <select id="origin"><option value="">Select</option><option value="thai">Thai student</option><option value="foreign">International student</option></select>
+        </div>
         <div class="row">
           <div><label for="studentId" class="req">Student ID</label><input id="studentId" inputmode="numeric" maxlength="10" placeholder="10 digits" autocomplete="off"></div>
           <div><label for="year" class="req">Year</label>
@@ -225,7 +229,7 @@ const CONFIG = {
   EVENT_SUB: 'PPE TU Class of 2026',
   TAGLINE: 'One Journey Ends, Another Begins.',
   EVENT_INFO: 'Date ... · Time ... · Venue ...',
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyYMjuQf_tZktzbuNfeuWHK4gM7KN9mkW_HfOds520Oj6q-ST6DTGM-xl2oYc8MfuHWgQ/exec',
+  SCRIPT_URL: 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE',
   PRICE: { student: 300, guest: 500 },              // ticket price (THB)
   QR_IMAGE: '',                                     // e.g. 'qr.png' (add later)
   ACCOUNT_TEXT: 'Bank ... / Account name ... / Account no. ...'  // edit later
@@ -283,6 +287,7 @@ function collect(){
     nickname: $('nickname').value.trim(),
     studentId: stu ? $('studentId').value.trim() : '',
     program: stu ? $('program').value : '',
+    origin: stu ? ($('program').value === 'thai' ? 'thai' : $('origin').value) : '',
     year: stu ? $('year').value : '',
     phone: stu ? '' : $('phone').value.trim(),
     message: $('message').value.trim(),
@@ -290,12 +295,30 @@ function collect(){
   };
 }
 
-const NAME_RE = /^[\u0E00-\u0E7FA-Za-z\s.\-']+$/;   // Thai or English letters
+const THAI_RE = /^[\u0E00-\u0E7F\s.\-]+$/, EN_RE = /^[A-Za-z\s.\-']+$/;
 
-function updateHint(){
-  $('nameHint').textContent = 'You can write your name in Thai or English.';
+// language rule: Thai students -> Thai, international (non-Thai) students -> English
+function nameLang(){
+  if(state.type !== 'student') return 'any';
+  const p = $('program').value;
+  if(p === 'thai') return 'th';
+  if(p === 'inter') return $('origin').value === 'thai' ? 'th' : $('origin').value === 'foreign' ? 'en' : '';
+  return '';
 }
-$('program').onchange = updateHint;
+function updateHint(){
+  const l = nameLang();
+  $('nameHint').textContent =
+    l === 'th' ? 'Thai students: please write your name in Thai only.' :
+    l === 'en' ? 'International students: please write your name in English only.' :
+    state.type === 'student' ? 'Select your programme to see which language to use for your name.' :
+    'Please write your name in Thai or English.';
+}
+function syncProgramme(){
+  $('originWrap').hidden = $('program').value !== 'inter';
+  updateHint();
+}
+$('program').onchange = syncProgramme;
+$('origin').onchange = updateHint;
 
 // student ID: digits only, max 10
 $('studentId').addEventListener('input', e => {
@@ -305,11 +328,15 @@ $('studentId').addEventListener('input', e => {
 $('next2').onclick = () => {
   const d = collect(); let msg = '';
   const names = [d.firstName, d.lastName, d.nickname];
+  const l = nameLang();
   if(d.type === 'student' && !d.program) msg = 'Please select your programme.';
+  else if(d.type === 'student' && !d.origin) msg = 'Please select whether you are a Thai or international student.';
   else if(d.type === 'student' && !/^\d{10}$/.test(d.studentId)) msg = 'Student ID must be exactly 10 digits.';
   else if(d.type === 'student' && !d.year) msg = 'Please select your year.';
   else if(!d.firstName || !d.lastName || !d.nickname) msg = 'Please fill in your first name, last name and nickname.';
-  else if(!names.every(n => NAME_RE.test(n))) msg = 'Please use Thai or English letters only in your name.';
+  else if(l === 'th' && !names.every(n => THAI_RE.test(n))) msg = 'Thai students: first name, last name and nickname must be in Thai only.';
+  else if(l === 'en' && !names.every(n => EN_RE.test(n))) msg = 'International students: first name, last name and nickname must be in English only.';
+  else if(l === 'any' && !names.every(n => THAI_RE.test(n) || EN_RE.test(n))) msg = 'Please write each name in Thai or in English (not mixed).';
   else if(d.type === 'guest' && !/^[0-9+\-\s]{9,15}$/.test(d.phone)) msg = 'Please enter a valid phone number.';
   $('e-form').textContent = msg;
   if(msg) return;
